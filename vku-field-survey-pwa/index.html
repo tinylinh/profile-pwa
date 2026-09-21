@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f766e">
+    <meta name="description" content="PWA khảo sát hiện trường đánh giá thư viện mới, hoạt động offline và tự đồng bộ Google Sheet khi online.">
+    <title>VKU Library Survey PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="app-header">
+        <div>
+            <p class="eyebrow">VKU Field Survey PWA</p>
+            <h1>Đánh giá thư viện mới</h1>
+            <p class="subtitle">Ứng dụng điều tra hiện trường, ưu tiên mobile, dùng được khi mất mạng.</p>
+        </div>
+        <div id="network-status" class="status-pill online" aria-live="polite">Online</div>
+    </header>
+
+    <main class="app-shell">
+        <section class="sync-panel" aria-label="Trạng thái đồng bộ">
+            <div>
+                <span class="label">Phiếu đã lưu</span>
+                <strong id="total-count">0</strong>
+            </div>
+            <div>
+                <span class="label">Chờ đồng bộ</span>
+                <strong id="pending-count">0</strong>
+            </div>
+            <button id="sync-now" type="button" class="icon-button" title="Đồng bộ ngay" aria-label="Đồng bộ ngay">
+                ↻
+            </button>
+        </section>
+
+        <section class="settings-panel">
+            <button id="toggle-settings" type="button" class="text-button">Cấu hình Google Sheet</button>
+            <div id="settings-body" class="settings-body hidden">
+                <label for="sheet-endpoint">Google Apps Script Web App URL</label>
+                <div class="endpoint-row">
+                    <input id="sheet-endpoint" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+                    <button id="save-endpoint" type="button">Lưu</button>
+                </div>
+                <p class="helper">Online sẽ gửi ngay lên Sheet. Offline sẽ lưu trên máy và tự gửi lại khi có mạng.</p>
+            </div>
+        </section>
+
+        <nav class="tabs" aria-label="Chọn màn hình">
+            <button class="tab active" type="button" data-tab="form">Phiếu khảo sát</button>
+            <button class="tab" type="button" data-tab="history">Lịch sử</button>
+        </nav>
+
+        <section id="form-tab" class="tab-panel">
+            <form id="survey-form" class="survey-form">
+                <fieldset>
+                    <legend>Thông tin phiên phỏng vấn</legend>
+                    <div class="field">
+                        <label for="interviewer">Tên người phỏng vấn</label>
+                        <input id="interviewer" name="interviewer" type="text" autocomplete="name" required>
+                    </div>
+                    <div class="field">
+                        <label for="interviewee">Mã hoặc tên người được hỏi</label>
+                        <input id="interviewee" name="interviewee" type="text" placeholder="VD: SV01 hoặc Nguyễn A" required>
+                    </div>
+                    <div class="two-columns">
+                        <div class="field">
+                            <label for="session-type">Nội dung phỏng vấn</label>
+                            <select id="session-type" name="sessionType" required>
+                                <option value="">Chọn nội dung</option>
+                                <option>Hiểu biết về thư viện mới</option>
+                                <option>Trải nghiệm sử dụng thư viện</option>
+                                <option>Góp ý cải thiện dịch vụ</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="interview-time">Thời gian ghi nhận</label>
+                            <input id="interview-time" name="interviewTime" type="text" readonly>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Thông tin cá nhân cơ bản</legend>
+                    <div class="field">
+                        <label for="major">Ngành học</label>
+                        <input id="major" name="major" type="text" placeholder="VD: Công nghệ thông tin" required>
+                    </div>
+                    <div class="two-columns">
+                        <div class="field">
+                            <label for="school-year">Năm học</label>
+                            <select id="school-year" name="schoolYear" required>
+                                <option value="">Chọn năm</option>
+                                <option>Năm 1</option>
+                                <option>Năm 2</option>
+                                <option>Năm 3</option>
+                                <option>Năm 4</option>
+                                <option>Sau đại học</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="gender">Giới tính</label>
+                            <select id="gender" name="gender" required>
+                                <option value="">Chọn</option>
+                                <option>Nam</option>
+                                <option>Nữ</option>
+                                <option>Khác</option>
+                                <option>Không muốn trả lời</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="age">Độ tuổi</label>
+                        <select id="age" name="age" required>
+                            <option value="">Chọn độ tuổi</option>
+                            <option>Dưới 18</option>
+                            <option>18-20</option>
+                            <option>21-23</option>
+                            <option>24-30</option>
+                            <option>Trên 30</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Câu hỏi đánh giá thư viện mới</legend>
+                    <div class="field">
+                        <label for="awareness">Bạn biết những dịch vụ nào của thư viện mới?</label>
+                        <textarea id="awareness" name="awareness" rows="3" placeholder="VD: mượn sách, phòng học nhóm, máy tra cứu..." required></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="visit-frequency">Tần suất sử dụng thư viện</label>
+                        <select id="visit-frequency" name="visitFrequency" required>
+                            <option value="">Chọn tần suất</option>
+                            <option>Chưa từng sử dụng</option>
+                            <option>1-2 lần/tháng</option>
+                            <option>1-2 lần/tuần</option>
+                            <option>Gần như mỗi ngày</option>
+                        </select>
+                    </div>
+                    <div class="rating-grid">
+                        <label>Không gian học tập
+                            <input name="studySpace" type="range" min="1" max="5" value="4">
+                            <span data-output="studySpace">4/5</span>
+                        </label>
+                        <label>Tài liệu, sách, giáo trình
+                            <input name="materials" type="range" min="1" max="5" value="4">
+                            <span data-output="materials">4/5</span>
+                        </label>
+                        <label>Wifi và thiết bị hỗ trợ
+                            <input name="wifiEquipment" type="range" min="1" max="5" value="4">
+                            <span data-output="wifiEquipment">4/5</span>
+                        </label>
+                        <label>Thái độ nhân viên
+                            <input name="staffSupport" type="range" min="1" max="5" value="4">
+                            <span data-output="staffSupport">4/5</span>
+                        </label>
+                        <label>Giờ mở cửa
+                            <input name="openingHours" type="range" min="1" max="5" value="4">
+                            <span data-output="openingHours">4/5</span>
+                        </label>
+                        <label>Mức hài lòng tổng thể
+                            <input name="overallSatisfaction" type="range" min="1" max="5" value="4">
+                            <span data-output="overallSatisfaction">4/5</span>
+                        </label>
+                    </div>
+                    <div class="field">
+                        <label for="suggestion">Góp ý để thư viện mới tốt hơn</label>
+                        <textarea id="suggestion" name="suggestion" rows="4" required></textarea>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Bằng chứng hiện trường</legend>
+                    <div class="action-row">
+                        <button id="get-location" type="button" class="secondary-button">Lấy vị trí</button>
+                        <span id="location-status" class="helper">Chưa lấy vị trí</span>
+                    </div>
+                    <input id="latitude" name="latitude" type="hidden">
+                    <input id="longitude" name="longitude" type="hidden">
+                    <input id="locationAccuracy" name="locationAccuracy" type="hidden">
+
+                    <div class="field">
+                        <label for="photo">Chụp ảnh hiện trường</label>
+                        <input id="photo" name="photo" type="file" accept="image/*" capture="environment">
+                        <img id="photo-preview" class="photo-preview hidden" alt="Ảnh hiện trường đã chọn">
+                    </div>
+                    <div class="field">
+                        <label for="notes">Ghi chú thêm</label>
+                        <textarea id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                </fieldset>
+
+                <button type="submit" class="submit-button">Lưu phiếu khảo sát</button>
+            </form>
+        </section>
+
+        <section id="history-tab" class="tab-panel hidden">
+            <div class="history-header">
+                <h2>Lịch sử phiên phỏng vấn</h2>
+                <button id="export-json" type="button" class="secondary-button">Xuất JSON</button>
+            </div>
+            <div id="history-list" class="history-list"></div>
+        </section>
+    </main>
+
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+    <script src="js/app.js"></script>
+</body>
+</html>
