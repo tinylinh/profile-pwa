@@ -11,6 +11,9 @@
 
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
+    <script src="config.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="native-plugins.bundle.js"></script>
 
     <title>Library Survey</title>
 </head>
@@ -27,6 +30,15 @@
         🟢 Online
     </div>
 </header>
+
+<section id="authBar" class="auth-bar">
+    <div class="auth-copy">
+        <strong id="authTitle">Đăng nhập để bắt đầu</strong>
+        <span id="authEmail">Dữ liệu sẽ được gắn với tài khoản Google của bạn.</span>
+    </div>
+    <div id="googleSignInButton"></div>
+    <button id="signOutBtn" class="small-btn" type="button" hidden>Đăng xuất</button>
+</section>
 
 <main>
 
@@ -376,6 +388,47 @@
             <div class="card">
 
                 <h3>📷 Ảnh hiện trường</h3>
+
+                <div class="camera-actions">
+                    <button
+                        type="button"
+                        id="openCameraBtn"
+                        class="small-btn">
+                        Mở camera
+                    </button>
+
+                    <button
+                        type="button"
+                        id="capturePhotoBtn"
+                        class="small-btn"
+                        hidden>
+                        Chụp ảnh
+                    </button>
+
+                    <button
+                        type="button"
+                        id="closeCameraBtn"
+                        class="small-btn"
+                        hidden>
+                        Tắt camera
+                    </button>
+
+                    <button
+                        type="button"
+                        id="downloadPhotoBtn"
+                        class="small-btn"
+                        hidden>
+                        Lưu ảnh vào điện thoại
+                    </button>
+                </div>
+
+                <video
+                    id="cameraPreview"
+                    class="camera-preview"
+                    autoplay
+                    playsinline
+                    muted
+                    hidden></video>
 
                 <input
                     id="photo"
