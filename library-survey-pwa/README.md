@@ -48,3 +48,4 @@ Trên máy Mac cần cài Xcode, CocoaPods và đăng nhập Apple Developer:
 6. Điền privacy details, screenshots, app icon và submit TestFlight/App Review.
 
 App Store không thể được archive hoặc submit trực tiếp từ Windows; phần đó bắt buộc thực hiện trên macOS/Xcode.
+>>>>>>> Stashed changes
